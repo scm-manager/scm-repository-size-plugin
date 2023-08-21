@@ -1,5 +1,15 @@
 {
   "scm-repository-size-plugin": {
-
+    "navLink": "Repository Sizes",
+    "title": "Repository Sizes",
+    "table": {
+      "key": "Repository Size",
+      "totalSizeInBytes": "Total",
+      "repoSizeInBytes": "Repository",
+      "storeSizeInBytes": "Metadata",
+      "lfsSizeInBytes": "LFS Files",
+      "tempSizeInBytes": "Temp Files",
+      "empty": "No repositories found. The repository size determination requires the repository permission \"pull\"."
+    }
   }
 }

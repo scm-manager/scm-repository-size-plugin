@@ -24,18 +24,23 @@
 
 package com.cloudogu.repositorysize;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import de.otto.edison.hal.HalRepresentation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Path("v2/sample")
-class SampleResource {
-
-  @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  public String sample() {
-    return "Sample";
-  }
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@SuppressWarnings("java:S2160") // we don't need equals here
+public class RepositorySizeDto extends HalRepresentation {
+  private String namespace;
+  private String name;
+  private double totalSizeInBytes;
+  private double repoSizeInBytes;
+  private double storeSizeInBytes;
+  private double lfsSizeInBytes;
+  private double tempSizeInBytes;
 }
+
+

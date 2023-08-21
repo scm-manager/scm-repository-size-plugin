@@ -1,5 +1,15 @@
 {
   "scm-repository-size-plugin": {
-
+    "navLink": "Repository Größen",
+    "title": "Repository Größen",
+    "table": {
+      "key": "Repository Speichergröße",
+      "totalSizeInBytes": "Gesamt",
+      "repoSizeInBytes": "Repository",
+      "storeSizeInBytes": "Metadaten",
+      "lfsSizeInBytes": "LFS Dateien",
+      "tempSizeInBytes": "Temporäre Dateien",
+      "empty": "Keine Repositories gefunden. Die Repository Größen Ermittlung benötigt die Repository Berechtigung \"pull\"."
+    }
   }
 }

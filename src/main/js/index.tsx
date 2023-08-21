@@ -22,6 +22,18 @@
  * SOFTWARE.
  */
 
-import { binder } from "@scm-manager/ui-extensions";
+import { binder, extensionPoints } from "@scm-manager/ui-extensions";
+import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
+import RepoSizes from "./RepoSizes";
+import AdminSizes from "./AdminSizes";
 
-binder.bind("", "");
+binder.bind<extensionPoints.RepositoryInformationTableBottom>("repository.information.table.bottom", RepoSizes, {
+  predicate: props => !!props.repository._links.size
+});
+cfgBinder.bindAdmin(
+  "/repository-size",
+  "scm-repository-size-plugin.navLink",
+  "fas fa-weight-hanging",
+  "repository-size",
+  AdminSizes
+);

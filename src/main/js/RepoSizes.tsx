@@ -22,27 +22,46 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.15.0'
-}
+import { ErrorNotification, Loading } from "@scm-manager/ui-components";
+import { Repository } from "@scm-manager/ui-types";
+import React, { FC } from "react";
+import { formatSizes, isNoRepositorySizeAvailable, useRepoSize } from "./size";
+import { useTranslation } from "react-i18next";
 
-dependencies {
-  // define dependencies to other plugins here e.g.:
-  // plugin "sonia.scm.plugins:scm-mail-plugin:2.1.0"
-  // optionalPlugin "sonia.scm.plugins:scm-editor-plugin:2.0.0"
-}
+type Props = {
+  repository: Repository;
+};
 
-scmPlugin {
-  scmVersion = "2.45.3-SNAPSHOT"
-  displayName = "Repository Size"
-  description = "Show the repository disk space size by categories"
+const RepoSizes: FC<Props> = ({ repository }) => {
+  const { data, isLoading, error } = useRepoSize(repository);
+  const [t] = useTranslation("plugins");
 
-   author = "Cloudogu GmbH"
-   category = "Administration"
-
-  openapi {
-    packages = [
-      "com.cloudogu.repositorysize"
-    ]
+  if (error) {
+    return <ErrorNotification error={error} />;
   }
-}
+
+  if (isLoading || !data) {
+    return <Loading />;
+  }
+
+  return (
+    <tr>
+      <th>{t("scm-repository-size-plugin.table.key")}</th>
+      <td>
+        {formatSizes(data).map(s => {
+          if (isNoRepositorySizeAvailable(s)) {
+            return null;
+          }
+          return (
+            <div key={s.name}>
+              <span className="has-text-weight-bold">{t(`scm-repository-size-plugin.table.${s.name}`)}:</span> {s.value}{" "}
+              {s.unit}
+            </div>
+          );
+        })}
+      </td>
+    </tr>
+  );
+};
+
+export default RepoSizes;

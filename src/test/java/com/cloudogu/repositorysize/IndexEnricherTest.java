@@ -24,17 +24,49 @@
 
 package com.cloudogu.repositorysize;
 
+import org.github.sdorra.jse.ShiroExtension;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.api.v2.resources.HalAppender;
+import sonia.scm.api.v2.resources.HalEnricherContext;
+import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.inject.Provider;
+import java.net.URI;
 
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 
-class SampleResourceTest {
+@ExtendWith({MockitoExtension.class, ShiroExtension.class})
+class IndexEnricherTest {
 
-  @Test
-  void shouldTestSomething() {
+  @Mock
+  private Provider<ScmPathInfoStore> storeProvider;
 
-    assertThat(0).isNotPositive();
+  @Mock
+  private HalAppender appender;
+
+  @Mock
+  private HalEnricherContext context;
+
+  @InjectMocks
+  private IndexEnricher enricher;
+
+  @BeforeEach
+  void initMocks() {
+    ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
+    scmPathInfoStore.set(() -> URI.create(""));
+    lenient().when(storeProvider.get()).thenReturn(scmPathInfoStore);
   }
 
+  @Test
+  void shouldAppendLink() {
+    enricher.enrich(context, appender);
+
+    verify(appender).appendLink("repository-size", "v2/repository-size");
+  }
 }
