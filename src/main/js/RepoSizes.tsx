@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ErrorNotification, Loading } from "@scm-manager/ui-components";
+import { ErrorNotification, LabelWithHelpIcon, SmallLoadingSpinner } from "@scm-manager/ui-components";
 import { Repository } from "@scm-manager/ui-types";
 import React, { FC } from "react";
 import { formatSizes, isNoRepositorySizeAvailable, useRepoSize } from "./size";
@@ -40,25 +40,30 @@ const RepoSizes: FC<Props> = ({ repository }) => {
     return <ErrorNotification error={error} />;
   }
 
-  if (isLoading || !data) {
-    return <Loading />;
-  }
-
   return (
     <tr>
-      <th>{t("scm-repository-size-plugin.table.key")}</th>
+      <th>
+        <LabelWithHelpIcon
+          label={t("scm-repository-size-plugin.table.key")}
+          helpText={t("scm-repository-size-plugin.repoInfo")}
+        />
+      </th>
       <td>
-        {formatSizes(data).map(s => {
-          if (isNoRepositorySizeAvailable(s)) {
-            return null;
-          }
-          return (
-            <div key={s.name}>
-              <span className="has-text-weight-bold">{t(`scm-repository-size-plugin.table.${s.name}`)}:</span> {s.value}{" "}
-              {s.unit}
-            </div>
-          );
-        })}
+        {!data || isLoading ? (
+          <SmallLoadingSpinner />
+        ) : (
+          formatSizes(data).map(s => {
+            if (isNoRepositorySizeAvailable(s)) {
+              return null;
+            }
+            return (
+              <div key={s.name}>
+                <span className="has-text-weight-bold">{t(`scm-repository-size-plugin.table.${s.name}`)}:</span>{" "}
+                {s.value} {s.unit}
+              </div>
+            );
+          })
+        )}
       </td>
     </tr>
   );
