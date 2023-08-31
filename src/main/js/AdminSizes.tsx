@@ -23,16 +23,49 @@
  */
 
 import React, { FC } from "react";
-import { formatSizes, isNoRepositorySizeAvailable, useReposSize } from "./size";
+import { formatSizes, isNoRepositorySizeAvailable, mergeRepoSizes, RepositorySize, useReposSize } from "./size";
 import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui-components";
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+type SizeDetailProps = {
+  repoSize: RepositorySize;
+};
+
+const SizeDetail: FC<SizeDetailProps> = ({ repoSize }: SizeDetailProps) => {
+  const [t] = useTranslation("plugins");
+
+  return (
+    <>
+      {formatSizes(repoSize).map(size => {
+        if (isNoRepositorySizeAvailable(size)) {
+          return null;
+        }
+        return (
+          <Card.Details.Detail key={size.name}>
+            {({ labelId }) => (
+              <>
+                <Card.Details.Detail.Label id={labelId}>
+                  {t(`scm-repository-size-plugin.table.${size.name}`)}
+                </Card.Details.Detail.Label>
+                <Card.Details.Detail.Tag aria-labelledby={labelId}>
+                  {size.value} {size.unit}
+                </Card.Details.Detail.Tag>
+              </>
+            )}
+          </Card.Details.Detail>
+        );
+      })}
+    </>
+  );
+};
+
 const AdminSizes: FC = () => {
   const { data, isLoading, error } = useReposSize();
   const [t] = useTranslation("plugins");
 
+  // @ts-ignore
   return (
     <>
       <Title title={t("scm-repository-size-plugin.title")} />
@@ -40,6 +73,18 @@ const AdminSizes: FC = () => {
       <Notification type="info">{t("scm-repository-size-plugin.adminInfo")}</Notification>
       {data && !isLoading ? (
         <CardListBox>
+          {data.length > 0 && (
+            <CardList.Card rowGap="0.5rem">
+              <Card.Row>
+                <Card.Title>{t("scm-repository-size-plugin.mergedReposTotal")}</Card.Title>
+              </Card.Row>
+              <Card.Row>
+                <Card.Details>
+                  <SizeDetail repoSize={mergeRepoSizes(data)} />
+                </Card.Details>
+              </Card.Row>
+            </CardList.Card>
+          )}
           {data.length > 0 ? (
             data.map(repoSizes => (
               <CardList.Card key={repoSizes.name} rowGap="0.5rem">
@@ -52,25 +97,7 @@ const AdminSizes: FC = () => {
                 </Card.Row>
                 <Card.Row>
                   <Card.Details>
-                    {formatSizes(repoSizes).map(size => {
-                      if (isNoRepositorySizeAvailable(size)) {
-                        return null;
-                      }
-                      return (
-                        <Card.Details.Detail key={size.name}>
-                          {({ labelId }) => (
-                            <>
-                              <Card.Details.Detail.Label id={labelId}>
-                                {t(`scm-repository-size-plugin.table.${size.name}`)}
-                              </Card.Details.Detail.Label>
-                              <Card.Details.Detail.Tag aria-labelledby={labelId}>
-                                {size.value} {size.unit}
-                              </Card.Details.Detail.Tag>
-                            </>
-                          )}
-                        </Card.Details.Detail>
-                      );
-                    })}
+                    <SizeDetail repoSize={repoSizes} />
                   </Card.Details>
                 </Card.Row>
               </CardList.Card>

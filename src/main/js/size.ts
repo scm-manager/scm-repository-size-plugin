@@ -31,14 +31,21 @@ type ConvertedSize = {
   unit: string;
 };
 
-export type RepositorySize = {
+const sizeTypeNames = [
+  "totalSizeInBytes",
+  "repoSizeInBytes",
+  "storeSizeInBytes",
+  "lfsSizeInBytes",
+  "tempSizeInBytes"
+] as const;
+
+type SizeTypes = {
+  [K in typeof sizeTypeNames[number]]: number;
+};
+
+export type RepositorySize = SizeTypes & {
   namespace: string;
   name: string;
-  totalSize: number;
-  repoSizeInBytes: number;
-  storeSizeInBytes: number;
-  lfsSizeInBytes: number;
-  tempSizeInBytes: number;
 };
 
 export const isNoRepositorySizeAvailable = (repositorySize: ConvertedSize) => repositorySize.value < 0;
@@ -63,3 +70,31 @@ export const formatSizes = (size: RepositorySize) =>
     }
     return convertedSizes;
   }, []);
+
+export const mergeRepoSizes = (sizes: RepositorySize[]) => {
+  const mergedSizes: RepositorySize = {
+    namespace: "",
+    name: "",
+    totalSizeInBytes: -1,
+    repoSizeInBytes: -1,
+    storeSizeInBytes: -1,
+    lfsSizeInBytes: -1,
+    tempSizeInBytes: -1
+  };
+
+  sizes.forEach(size => {
+    sizeTypeNames.forEach(sizeType => {
+      if (size[sizeType] < 0) {
+        return;
+      }
+
+      if (mergedSizes[sizeType] === -1) {
+        mergedSizes[sizeType] = size[sizeType];
+      } else {
+        mergedSizes[sizeType] += size[sizeType];
+      }
+    });
+  });
+
+  return mergedSizes;
+};

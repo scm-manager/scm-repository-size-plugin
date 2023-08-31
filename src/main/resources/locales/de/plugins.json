@@ -1,5 +1,6 @@
 {
   "scm-repository-size-plugin": {
+    "mergedReposTotal": "Summe aller Repositories",
     "navLink": "Repository Größen",
     "title": "Repository Größen",
     "repoInfo": "Die Berechnung des Repositories kann je Größe einige Minuten dauern. Die berechnete Größe kann zudem von dem tatsächlich genutzten Speicher abweichen, da nur die eigentlichen Dateigrößen betrachtet werden.",

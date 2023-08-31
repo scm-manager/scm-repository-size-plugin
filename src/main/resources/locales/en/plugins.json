@@ -1,5 +1,6 @@
 {
   "scm-repository-size-plugin": {
+    "mergedReposTotal": "Total over all Repositories",
     "navLink": "Repository Sizes",
     "title": "Repository Sizes",
     "repoInfo": "Repository calculation may take a few minutes depending on the size. The calculated size may also differ from the actual disk space used, since only the actual file sizes are considered.",

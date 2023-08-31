@@ -7,7 +7,6 @@
     "scripts": {
         "build": "plugin-scripts build",
         "watch": "plugin-scripts watch",
-        "test": "jest --passWithNoTests",
         "postinstall": "plugin-scripts postinstall"
     },
     "devDependencies": {
@@ -21,7 +20,6 @@
         "@scm-manager/ui-scripts": "2.46.0",
         "@scm-manager/ui-tests": "2.46.0",
         "@scm-manager/ui-types": "2.46.0",
-        "@scm-manager/ui-layout": "2.45.2",
         "@types/classnames": "^2.2.9",
         "@types/enzyme": "^3.10.3",
         "@types/fetch-mock": "^7.3.1",
