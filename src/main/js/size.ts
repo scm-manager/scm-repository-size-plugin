@@ -59,7 +59,7 @@ export const formatSizes = (size: RepositorySize) =>
   Object.entries(size).reduce<ConvertedSize[]>((convertedSizes, [name, value]) => {
     if (typeof value === "number") {
       if (value <= 1024) {
-        convertedSizes.push({ name, value, unit: "B" });
+        convertedSizes.push({ name, value, unit: " B" });
       } else if (value <= 1024 * 1024) {
         convertedSizes.push({ name, value: Math.round((value / 1024) * 100) / 100, unit: "KB" });
       } else if (value <= 1024 * 1024 * 1024) {

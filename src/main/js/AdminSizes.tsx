@@ -28,6 +28,16 @@ import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+const StyledTag = styled(Card.Details.Detail.Tag)`
+  width: 6rem;
+    justify-content: right !important;
+`;
+
+const formatter = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 2
+})
 
 type SizeDetailProps = {
   repoSize: RepositorySize;
@@ -35,7 +45,6 @@ type SizeDetailProps = {
 
 const SizeDetail: FC<SizeDetailProps> = ({ repoSize }: SizeDetailProps) => {
   const [t] = useTranslation("plugins");
-
   return (
     <>
       {formatSizes(repoSize).map(size => {
@@ -49,9 +58,9 @@ const SizeDetail: FC<SizeDetailProps> = ({ repoSize }: SizeDetailProps) => {
                 <Card.Details.Detail.Label id={labelId}>
                   {t(`scm-repository-size-plugin.table.${size.name}`)}
                 </Card.Details.Detail.Label>
-                <Card.Details.Detail.Tag aria-labelledby={labelId}>
-                  {size.value} {size.unit}
-                </Card.Details.Detail.Tag>
+                <StyledTag aria-labelledby={labelId} className="has-text-right is-family-monospace">
+                  {formatter.format(size.value)} {size.unit}
+                </StyledTag>
               </>
             )}
           </Card.Details.Detail>
