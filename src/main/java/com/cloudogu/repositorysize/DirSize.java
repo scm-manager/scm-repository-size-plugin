@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DirSize {
@@ -55,23 +53,22 @@ public class DirSize {
   }
 
   private void calculate() {
-    this.folderSize = 0;
     if (!Files.exists(Path.of(this.resolveDirPath()))) {
       this.folderSize = -1;
       return;
     }
     try (Stream<Path> walk = Files.walk(Paths.get(this.resolveDirPath()))) {
-      List<Path> result = walk
+      this.folderSize = walk
         .filter(Files::isRegularFile)
-        .collect(Collectors.toList());
-
-      result.forEach(path -> {
-        try {
-          this.folderSize += Files.size(path);
-        } catch (IOException e) {
-          LOG.error("Error calculating folder size: " + path, e);
-        }
-      });
+        .mapToLong(path -> {
+          try {
+            return Files.size(path);
+          } catch (IOException e) {
+            LOG.error("Error calculating folder size: " + path, e);
+            return 0;
+          }
+        })
+        .sum();
     } catch (IOException e) {
       LOG.error("Error calculating folder size", e);
     }
