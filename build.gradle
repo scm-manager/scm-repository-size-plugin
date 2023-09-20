@@ -33,7 +33,7 @@ dependencies {
 }
 
 scmPlugin {
-  scmVersion = "2.46.0"
+  scmVersion = "2.46.2-SNAPSHOT"
   displayName = "Repository Size"
   description = "Show the repository disk space size by categories"
 

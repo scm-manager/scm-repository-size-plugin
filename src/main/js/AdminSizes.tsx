@@ -32,7 +32,7 @@ import styled from "styled-components";
 
 const StyledTag = styled(Card.Details.Detail.Tag)`
   width: 6rem;
-    justify-content: right !important;
+  justify-content: right !important;
 `;
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -41,9 +41,10 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 type SizeDetailProps = {
   repoSize: RepositorySize;
+  emphasize?: boolean
 };
 
-const SizeDetail: FC<SizeDetailProps> = ({ repoSize }: SizeDetailProps) => {
+const SizeDetail: FC<SizeDetailProps> = ({ repoSize, emphasize }: SizeDetailProps) => {
   const [t] = useTranslation("plugins");
   return (
     <>
@@ -58,7 +59,7 @@ const SizeDetail: FC<SizeDetailProps> = ({ repoSize }: SizeDetailProps) => {
                 <Card.Details.Detail.Label id={labelId}>
                   {t(`scm-repository-size-plugin.table.${size.name}`)}
                 </Card.Details.Detail.Label>
-                <StyledTag aria-labelledby={labelId} className="has-text-right is-family-monospace">
+                <StyledTag cardVariant={emphasize ? "info" : "light"} aria-labelledby={labelId} className="has-text-right is-family-monospace">
                   {formatter.format(size.value)} {size.unit}
                 </StyledTag>
               </>
@@ -89,7 +90,7 @@ const AdminSizes: FC = () => {
               </Card.Row>
               <Card.Row>
                 <Card.Details>
-                  <SizeDetail repoSize={mergeRepoSizes(data)} />
+                  <SizeDetail repoSize={mergeRepoSizes(data)} emphasize={true} />
                 </Card.Details>
               </Card.Row>
             </CardList.Card>
