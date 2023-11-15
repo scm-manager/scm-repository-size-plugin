@@ -23,25 +23,44 @@
  */
 
 import React, { FC } from "react";
-import { formatSizes, isNoRepositorySizeAvailable, mergeRepoSizes, RepositorySize, useReposSize } from "./size";
+import {
+  formatSizes,
+  isNoRepositorySizeAvailable,
+  mergeRepoSizes,
+  RepositorySizes,
+  RepositorySize,
+  useReposSize,
+  isDataLoading
+} from "./size";
 import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui-components";
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 const StyledTag = styled(Card.Details.Detail.Tag)`
   width: 6rem;
   justify-content: right !important;
 `;
 
-const formatter = new Intl.NumberFormat('en-US', {
+const skeleton = keyframes`
+    0% {opacity: 60%;}
+    100% {opacity: 100%;}
+`;
+const LoadingTag = styled(Card.Details.Detail.Tag)`
+  width: 6rem;
+  justify-content: right !important;
+  animation: ${skeleton} 1.5s ease infinite;
+  animation-direction: alternate;
+`;
+
+const formatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2
-})
+});
 
 type SizeDetailProps = {
   repoSize: RepositorySize;
-  emphasize?: boolean
+  emphasize?: boolean;
 };
 
 const SizeDetail: FC<SizeDetailProps> = ({ repoSize, emphasize }: SizeDetailProps) => {
@@ -59,15 +78,58 @@ const SizeDetail: FC<SizeDetailProps> = ({ repoSize, emphasize }: SizeDetailProp
                 <Card.Details.Detail.Label id={labelId}>
                   {t(`scm-repository-size-plugin.table.${size.name}`)}
                 </Card.Details.Detail.Label>
-                <StyledTag cardVariant={emphasize ? "info" : "light"} aria-labelledby={labelId} className="has-text-right is-family-monospace">
-                  {formatter.format(size.value)} {size.unit}
-                </StyledTag>
+                {repoSize.isLoading ? (
+                  <LoadingTag cardVariant={emphasize ? "info" : "light"} />
+                ) : (
+                  <StyledTag
+                    cardVariant={emphasize ? "info" : "light"}
+                    aria-labelledby={labelId}
+                    className="has-text-right is-family-monospace"
+                  >
+                    {formatter.format(size.value)} {size.unit}
+                  </StyledTag>
+                )}
               </>
             )}
           </Card.Details.Detail>
         );
       })}
     </>
+  );
+};
+
+const DataPanel: FC<{ data: RepositorySizes }> = ({ data }) => {
+  const [t] = useTranslation("plugins");
+  if (Object.keys(data).length === 0) {
+    return <Notification type="info">{t("scm-repository-size-plugin.table.empty")}</Notification>;
+  }
+  return (
+    <CardListBox>
+      <CardList.Card rowGap="0.5rem">
+        <Card.Row>
+          <Card.Title>{t("scm-repository-size-plugin.mergedReposTotal")}</Card.Title>
+        </Card.Row>
+        <Card.Row>
+          <Card.Details>
+            <SizeDetail repoSize={mergeRepoSizes(data)} emphasize={true} />
+          </Card.Details>
+        </Card.Row>
+      </CardList.Card>
+      {Object.keys(data).map(repo => (
+        <CardList.Card key={repo} rowGap="0.5rem">
+          <Card.Row>
+            <Card.Title>
+              <Link to={`/repo/${repo}/info`}>{repo}</Link>
+            </Card.Title>
+          </Card.Row>
+          <Card.Row>
+            <Card.Details>
+              <SizeDetail repoSize={data[repo]} />
+            </Card.Details>
+          </Card.Row>
+        </CardList.Card>
+      ))}
+    </CardListBox>
   );
 };
 
@@ -81,44 +143,7 @@ const AdminSizes: FC = () => {
       <Title title={t("scm-repository-size-plugin.title")} />
       {error ? <ErrorNotification error={error} /> : null}
       <Notification type="info">{t("scm-repository-size-plugin.adminInfo")}</Notification>
-      {data && !isLoading ? (
-        <CardListBox>
-          {data.length > 0 && (
-            <CardList.Card rowGap="0.5rem">
-              <Card.Row>
-                <Card.Title>{t("scm-repository-size-plugin.mergedReposTotal")}</Card.Title>
-              </Card.Row>
-              <Card.Row>
-                <Card.Details>
-                  <SizeDetail repoSize={mergeRepoSizes(data)} emphasize={true} />
-                </Card.Details>
-              </Card.Row>
-            </CardList.Card>
-          )}
-          {data.length > 0 ? (
-            data.map(repoSizes => (
-              <CardList.Card key={repoSizes.name} rowGap="0.5rem">
-                <Card.Row>
-                  <Card.Title>
-                    <Link to={`/repo/${repoSizes.namespace}/${repoSizes.name}/info`}>
-                      {`${repoSizes.namespace}/${repoSizes.name}`}
-                    </Link>
-                  </Card.Title>
-                </Card.Row>
-                <Card.Row>
-                  <Card.Details>
-                    <SizeDetail repoSize={repoSizes} />
-                  </Card.Details>
-                </Card.Row>
-              </CardList.Card>
-            ))
-          ) : (
-            <Notification type="info">{t("scm-repository-size-plugin.table.empty")}</Notification>
-          )}
-        </CardListBox>
-      ) : (
-        <Loading />
-      )}
+      {isLoading ? <Loading /> : <DataPanel data={data} />}
     </>
   );
 };

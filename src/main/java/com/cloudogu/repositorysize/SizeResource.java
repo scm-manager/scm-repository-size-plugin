@@ -24,6 +24,8 @@
 
 package com.cloudogu.repositorysize;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,20 +41,20 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.ws.rs.core.StreamingOutput;
 
 @Path("v2/repository-size")
 public class SizeResource {
 
   private final RepositorySizeCalculator sizeCalculator;
   private final RepositoryManager repositoryManager;
+  private final ObjectMapper objectMapper;
 
   @Inject
-  public SizeResource(RepositorySizeCalculator sizeCalculator, RepositoryManager repositoryManager) {
+  public SizeResource(RepositorySizeCalculator sizeCalculator, RepositoryManager repositoryManager, ObjectMapper objectMapper) {
     this.sizeCalculator = sizeCalculator;
     this.repositoryManager = repositoryManager;
+    this.objectMapper = objectMapper;
   }
 
   @GET
@@ -80,34 +82,35 @@ public class SizeResource {
     )
   )
   @Path("")
-  public List<RepositorySizeDto> getSizes() {
-    List<Repository> repos = repositoryManager.getAll().stream()
-      .filter(r -> RepositoryPermissions.pull(r.getId()).isPermitted())
-      .collect(Collectors.toList());
-
-    ArrayList<RepositorySizeDto> repoSizeDtos = new ArrayList<>();
-
-    for (Repository repo : repos) {
-      createDto(repoSizeDtos, repo);
-    }
-    return repoSizeDtos;
+  public StreamingOutput getSizes() {
+    return output -> {
+      JsonGenerator jsonGenerator = objectMapper.getFactory().createGenerator(output);
+      jsonGenerator.writeStartArray();
+      for (Repository repository : repositoryManager.getAll()) {
+        if (RepositoryPermissions.pull(repository.getId()).isPermitted()) {
+          jsonGenerator.writeObject(createDto(repository));
+          jsonGenerator.flush();
+        }
+      }
+      jsonGenerator.writeEndArray();
+      jsonGenerator.close();
+    };
   }
 
-  private void createDto(ArrayList<RepositorySizeDto> repoSizeDtos, Repository repo) {
+  private RepositorySizeDto createDto(Repository repo) {
     double repoSize = sizeCalculator.getRepoSize(repo);
     double lfsSize = sizeCalculator.getLfsSize(repo);
     double exportsSize = sizeCalculator.getTempSize(repo);
     double storeSize = sizeCalculator.getStoreSize(repo) - lfsSize - exportsSize;
 
-    repoSizeDtos.add(new RepositorySizeDto(
-        repo.getNamespace(),
-        repo.getName(),
-        repoSize + storeSize + lfsSize + exportsSize,
-        repoSize,
-        storeSize,
-        lfsSize,
-        exportsSize
-      )
+    return new RepositorySizeDto(
+      repo.getNamespace(),
+      repo.getName(),
+      repoSize + storeSize + lfsSize + exportsSize,
+      repoSize,
+      storeSize,
+      lfsSize,
+      exportsSize
     );
   }
 }

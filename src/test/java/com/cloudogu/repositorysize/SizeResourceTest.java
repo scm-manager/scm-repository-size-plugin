@@ -25,6 +25,7 @@
 package com.cloudogu.repositorysize;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.inject.Provider;
 import org.github.sdorra.jse.ShiroExtension;
 import org.github.sdorra.jse.SubjectAware;
@@ -74,6 +75,7 @@ class SizeResourceTest {
 
   @BeforeEach
   void initResource() {
+    resource = new SizeResource(sizeCalculator, repositoryManager, new JsonMapper());
     dispatcher = new RestDispatcher();
     dispatcher.addSingletonResource(resource);
     lenient().when(pathInfoStoreProvider.get()).thenReturn(scmPathInfoStore);

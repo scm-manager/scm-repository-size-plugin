@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-import { Repository } from "@scm-manager/ui-types";
-import { useIndexJsonResource, useJsonResource } from "@scm-manager/ui-api";
+import { Repository, Link } from "@scm-manager/ui-types";
+import { apiClient, useJsonResource, useRepositories } from "@scm-manager/ui-api";
+import { useEffect, useState } from "react";
 
 type ConvertedSize = {
   name: string;
@@ -43,17 +44,60 @@ type SizeTypes = {
   [K in typeof sizeTypeNames[number]]: number;
 };
 
-export type RepositorySize = SizeTypes & {
-  namespace: string;
-  name: string;
+export type RepositorySize = SizeTypes & { isLoading: boolean };
+
+export type RepositorySizes = {
+  [repository: string]: RepositorySize;
 };
 
 export const isNoRepositorySizeAvailable = (repositorySize: ConvertedSize) => repositorySize.value < 0;
 
 export const useRepoSize = (repository: Repository) =>
-  useJsonResource<RepositorySize>(repository, "size", ["repository", repository.namespace, repository.name, "size"]);
+  useJsonResource<RepositorySizes>(repository, "size", ["repository", repository.namespace, repository.name, "size"]);
 
-export const useReposSize = () => useIndexJsonResource<RepositorySize[]>("repository-size");
+export const useReposSize = () => {
+  // fetch streaming json data from url
+  const [data, setData] = useState<RepositorySizes>({});
+  const { data: repositories, isLoading, error } = useRepositories({pageSize: 100000});
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+    let blankData: RepositorySizes = {};
+    repositories!._embedded!.repositories.forEach(repository => {
+      blankData[`${repository.namespace}/${repository.name}`] = {
+        totalSizeInBytes: 0,
+        repoSizeInBytes: 0,
+        storeSizeInBytes: 0,
+        lfsSizeInBytes: -1,
+        tempSizeInBytes: -1,
+        isLoading: true
+      };
+    });
+    setData(blankData);
+    const loadForRepository = async () => {
+      for (const repository of repositories?._embedded?.repositories ?? []) {
+        await apiClient
+          .get((repository._links.size as Link).href)
+          .then(response => response.json())
+          .then(response =>
+            setData(oldData => {
+              oldData[`${repository.namespace}/${repository.name}`] = { ...response, isLoading: false };
+              return { ...oldData };
+            })
+          );
+      }
+    };
+    loadForRepository();
+  }, [repositories]);
+
+  return {
+    data,
+    error: error,
+    isLoading: isLoading
+  };
+};
 
 export const formatSizes = (size: RepositorySize) =>
   Object.entries(size).reduce<ConvertedSize[]>((convertedSizes, [name, value]) => {
@@ -71,30 +115,33 @@ export const formatSizes = (size: RepositorySize) =>
     return convertedSizes;
   }, []);
 
-export const mergeRepoSizes = (sizes: RepositorySize[]) => {
+export const isDataLoading = (sizes: RepositorySizes) =>
+  Object.values(sizes).find(size => size.isLoading) !== undefined;
+
+export const mergeRepoSizes = (sizes: RepositorySizes) => {
   const mergedSizes: RepositorySize = {
-    namespace: "",
-    name: "",
     totalSizeInBytes: -1,
     repoSizeInBytes: -1,
     storeSizeInBytes: -1,
     lfsSizeInBytes: -1,
-    tempSizeInBytes: -1
+    tempSizeInBytes: -1,
+    isLoading: true
   };
 
-  sizes.forEach(size => {
+  Object.values(sizes).forEach(size => {
     sizeTypeNames.forEach(sizeType => {
       if (size[sizeType] < 0) {
         return;
       }
 
-      if (mergedSizes[sizeType] === -1) {
+      if (mergedSizes[sizeType] < 0) {
         mergedSizes[sizeType] = size[sizeType];
       } else {
         mergedSizes[sizeType] += size[sizeType];
       }
     });
   });
+  mergedSizes["isLoading"] = isDataLoading(sizes);
 
   return mergedSizes;
 };
