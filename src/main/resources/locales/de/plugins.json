@@ -13,6 +13,18 @@
       "lfsSizeInBytes": "LFS Dateien",
       "tempSizeInBytes": "Temporäre Dateien",
       "empty": "Keine Repositories gefunden. Die Repository-Größen Ermittlung benötigt die Repository-Berechtigung \"pull\"."
+    },
+    "header": {
+      "unsorted": "unsortiert",
+      "asc": "aufsteigend",
+      "desc": "absteigend",
+      "totalSizeInBytes": "Sortierung Gesamt: Momentan {{value}}",
+      "repoSizeInBytes": "Sortierung Repository: Momentan {{value}}",
+      "storeSizeInBytes": "Sortierung Metadaten: Momentan {{value}}",
+      "lfsSizeInBytes": "Sortierung LFS Dateien: Momentan {{value}}",
+      "tempSizeInBytes": "Sortierung Temporäre Dateien: Momentan {{value}}",
+      "reset": "Sortierung aufheben",
+      "resetButton": "Zurücksetzen"
     }
   }
 }

@@ -32,6 +32,12 @@ const sizeTypeNames = [
   "tempSizeInBytes"
 ] as const;
 
+export type SizeType = typeof sizeTypeNames[number];
+
+const SORTING_VALUES = ["asc", "desc", "unsorted"] as const;
+
+export type SortingState = typeof SORTING_VALUES[number];
+
 type SizeTypes = {
   [K in typeof sizeTypeNames[number]]: number;
 };
@@ -50,13 +56,13 @@ export const useRepoSize = (repository: Repository) =>
 export const useReposSize = () => {
   // fetch streaming json data from url
   const [data, setData] = useState<RepositorySizes>({});
-  const { data: repositories, isLoading, error } = useRepositories({pageSize: 100000});
+  const { data: repositories, isLoading, error } = useRepositories({ pageSize: 100000 });
 
   useEffect(() => {
     if (isLoading) {
       return;
     }
-    let blankData: RepositorySizes = {};
+    const blankData: RepositorySizes = {};
     repositories!._embedded!.repositories.forEach(repository => {
       blankData[`${repository.namespace}/${repository.name}`] = {
         totalSizeInBytes: 0,
@@ -136,4 +142,19 @@ export const mergeRepoSizes = (sizes: RepositorySizes) => {
   mergedSizes["isLoading"] = isDataLoading(sizes);
 
   return mergedSizes;
+};
+
+export const sortRepoByField = (repos: RepositorySizes, field: SizeType, sorting: SortingState) => {
+  if (sorting === "unsorted") {
+    return repos;
+  }
+  return Object.fromEntries(
+    Object.entries(repos).sort((a, b) => {
+      if (sorting === "asc") {
+        return a[1][field] - b[1][field];
+      } else {
+        return b[1][field] - a[1][field];
+      }
+    })
+  );
 };

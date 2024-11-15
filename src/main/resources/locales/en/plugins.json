@@ -13,6 +13,18 @@
       "lfsSizeInBytes": "LFS Files",
       "tempSizeInBytes": "Temp Files",
       "empty": "No repositories found. The repository size determination requires the repository permission \"pull\"."
+    },
+    "header": {
+      "unsorted": "unsorted",
+      "asc": "ascending",
+      "desc": "descending",
+      "totalSizeInBytes": "Sort by total: current {{value}}",
+      "repoSizeInBytes": "Sort by repository: current {{value}}",
+      "storeSizeInBytes": "Sort by metadata: current {{value}}",
+      "lfsSizeInBytes": "Sort by LFS files: current {{value}}",
+      "tempSizeInBytes": "Sort by temp files: current {{value}}",
+      "reset": "Reset sorting",
+      "resetButton": "Reset"
     }
   }
 }
