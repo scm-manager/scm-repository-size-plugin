@@ -26,7 +26,7 @@ import {
   SortingState,
   SizeType
 } from "./size";
-import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui-components";
+import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui-core";
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { Button, Icon } from "@scm-manager/ui-buttons";
 import { useTranslation } from "react-i18next";
@@ -62,7 +62,7 @@ const LoadingTag = styled(Card.Details.Detail.Tag)`
 const StyledButton = styled(Button)`
   background-color: transparent;
   border: 0;
-  padding: 0;
+  padding: 5px;
 `;
 
 const LoadingButton = styled(Button)`
@@ -180,7 +180,11 @@ const SizeDetailHeader: FC<SizeDetailHeaderProps> = ({
               ) : (
                 <StyledButton
                   aria-label={t(`scm-repository-size-plugin.header.${size.name}`, {
-                    value: t(`scm-repository-size-plugin.header.${sortDirection as string}`)
+                    value: t(
+                      `scm-repository-size-plugin.header.${
+                        sortField === size.name ? (sortDirection as string) : "unsorted"
+                      }`
+                    )
                   })}
                   onClick={() => onSort(size.name as SizeType)}
                 >
@@ -278,7 +282,6 @@ const AdminSizes: FC = () => {
       {error ? <ErrorNotification error={error} /> : null}
       <Notification type="info">{t("scm-repository-size-plugin.adminInfo")}</Notification>
       {isLoading && repos ? (
-        //@ts-expect-error
         <Loading />
       ) : (
         <DataPanel
