@@ -26,7 +26,7 @@ import {
   SortingState,
   SizeType
 } from "./size";
-import { ErrorNotification, Loading, Notification, Title } from "@scm-manager/ui-core";
+import { ErrorNotification, Loading, Notification, Title, useDocumentTitle } from "@scm-manager/ui-core";
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { Button, Icon } from "@scm-manager/ui-buttons";
 import { useTranslation } from "react-i18next";
@@ -263,6 +263,7 @@ const DataPanel: FC<{
 const AdminSizes: FC = () => {
   const { data, isLoading, error } = useReposSize();
   const [t] = useTranslation("plugins");
+  useDocumentTitle(t("scm-repository-size-plugin.title"));
   const [sortField, setSortField] = useState<SizeType | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<SortingState>("unsorted");
   const [repos, setRepos] = useState(data);

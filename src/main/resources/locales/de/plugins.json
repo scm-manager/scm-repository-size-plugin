@@ -1,18 +1,18 @@
 {
   "scm-repository-size-plugin": {
     "mergedReposTotal": "Summe aller Repositories",
-    "navLink": "Repository Größen",
-    "title": "Repository Größen",
+    "navLink": "Repository-Größen",
+    "title": "Repository-Größen",
     "repoInfo": "Die Berechnung des Repositories kann je Größe einige Minuten dauern. Die berechnete Größe kann zudem von dem tatsächlich genutzten Speicher abweichen, da nur die eigentlichen Dateigrößen betrachtet werden.",
     "adminInfo": "Die Berechnung der Repositories kann je nach Anzahl und Größe einige Minuten dauern. Die Daten werden nach und nach geladen und angezeigt. Die berechneten Größen kann zudem von dem tatsächlich genutzten Speicherplatz abweichen, da nur die eigentlichen Dateigrößen betrachtet werden.",
     "table": {
-      "key": "Repository Speichergröße",
+      "key": "Repository-Speichergröße",
       "totalSizeInBytes": "Gesamt",
       "repoSizeInBytes": "Repository",
       "storeSizeInBytes": "Metadaten",
       "lfsSizeInBytes": "LFS Dateien",
       "tempSizeInBytes": "Temporäre Dateien",
-      "empty": "Keine Repositories gefunden. Die Repository-Größen Ermittlung benötigt die Repository-Berechtigung \"pull\"."
+      "empty": "Keine Repositories gefunden. Die Repository-Größen-Ermittlung benötigt die Repository-Berechtigung \"pull\"."
     },
     "header": {
       "unsorted": "unsortiert",
