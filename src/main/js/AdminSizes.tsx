@@ -24,23 +24,14 @@ import {
   useReposSize,
   sortRepoByField,
   SortingState,
-  SizeType
+  SizeType,
 } from "./size";
 import { ErrorNotification, Loading, Notification, Title, useDocumentTitle } from "@scm-manager/ui-core";
 import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
 import { Button, Icon } from "@scm-manager/ui-buttons";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import styled, { keyframes } from "styled-components";
-
-const skeleton = keyframes`
-  0% {
-    opacity: 60%;
-  }
-  100% {
-    opacity: 100%;
-  }
-`;
+import styled from "styled-components";
 
 const FieldItem = styled.div`
   min-width: 165px;
@@ -52,30 +43,14 @@ const StyledTag = styled(Card.Details.Detail.Tag)`
   justify-content: right !important;
 `;
 
-const LoadingTag = styled(Card.Details.Detail.Tag)`
-  width: 6rem;
-  justify-content: right !important;
-  animation: ${skeleton} 1.5s ease infinite;
-  animation-direction: alternate;
-`;
-
 const StyledButton = styled(Button)`
   background-color: transparent;
   border: 0;
   padding: 5px;
 `;
 
-const LoadingButton = styled(Button)`
-  background-color: transparent;
-  border: 0;
-  padding: 0;
-  justify-content: right !important;
-  animation: ${skeleton} 1.5s ease infinite;
-  animation-direction: alternate;
-`;
-
 const formatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2
+  minimumFractionDigits: 2,
 });
 
 type SizeDetailProps = {
@@ -87,7 +62,7 @@ const SizeDetail: FC<SizeDetailProps> = ({ repoSize, emphasize }: SizeDetailProp
   const [t] = useTranslation("plugins");
   return (
     <>
-      {formatSizes(repoSize).map(size => {
+      {formatSizes(repoSize).map((size) => {
         if (isNoRepositorySizeAvailable(size)) {
           return null;
         }
@@ -99,17 +74,13 @@ const SizeDetail: FC<SizeDetailProps> = ({ repoSize, emphasize }: SizeDetailProp
                   <Card.Details.Detail.Label id={labelId}>
                     {t(`scm-repository-size-plugin.table.${size.name}`)}
                   </Card.Details.Detail.Label>
-                  {repoSize.isLoading ? (
-                    <LoadingTag cardVariant={emphasize ? "info" : "light"} />
-                  ) : (
-                    <StyledTag
-                      cardVariant={emphasize ? "info" : "light"}
-                      aria-labelledby={labelId}
-                      className="has-text-right is-family-monospace"
-                    >
-                      {formatter.format(size.value)} {size.unit}
-                    </StyledTag>
-                  )}
+                  <StyledTag
+                    cardVariant={emphasize ? "info" : "light"}
+                    aria-labelledby={labelId}
+                    className="has-text-right is-family-monospace"
+                  >
+                    {formatter.format(size.value)} {size.unit}
+                  </StyledTag>
                 </>
               )}
             </Card.Details.Detail>
@@ -133,7 +104,7 @@ const SizeDetailHeader: FC<SizeDetailHeaderProps> = ({
   setSortField,
   sortField,
   sortDirection,
-  setSortDirection
+  setSortDirection,
 }: SizeDetailHeaderProps) => {
   const [t] = useTranslation("plugins");
 
@@ -168,30 +139,26 @@ const SizeDetailHeader: FC<SizeDetailHeaderProps> = ({
 
   return (
     <>
-      {formatSizes(repoSize).map(size => {
+      {formatSizes(repoSize).map((size) => {
         if (isNoRepositorySizeAvailable(size)) {
           return null;
         }
         return (
           <FieldItem key={size.name}>
             <Card.Details.Detail>
-              {repoSize.isLoading ? (
-                <LoadingButton />
-              ) : (
-                <StyledButton
-                  aria-label={t(`scm-repository-size-plugin.header.${size.name}`, {
-                    value: t(
-                      `scm-repository-size-plugin.header.${
-                        sortField === size.name ? (sortDirection as string) : "unsorted"
-                      }`
-                    )
-                  })}
-                  onClick={() => onSort(size.name as SizeType)}
-                >
-                  <p>{t(`scm-repository-size-plugin.table.${size.name}`)}</p>
-                  <Icon>{getIconName(size.name as SizeType)}</Icon>
-                </StyledButton>
-              )}
+              <StyledButton
+                aria-label={t(`scm-repository-size-plugin.header.${size.name}`, {
+                  value: t(
+                    `scm-repository-size-plugin.header.${
+                      sortField === size.name ? (sortDirection as string) : "unsorted"
+                    }`,
+                  ),
+                })}
+                onClick={() => onSort(size.name as SizeType)}
+              >
+                <p>{t(`scm-repository-size-plugin.table.${size.name}`)}</p>
+                <Icon>{getIconName(size.name as SizeType)}</Icon>
+              </StyledButton>
             </Card.Details.Detail>
           </FieldItem>
         );
@@ -239,15 +206,10 @@ const DataPanel: FC<{
           </Card.Details>
         </Card.Row>
       </CardList.Card>
-      {Object.keys(data).map(repo => (
+      {Object.keys(data).map((repo) => (
         <CardList.Card key={repo} rowGap="0.5rem">
           <Card.Row>
-            <Card.Title>
-              {
-                //@ts-expect-error
-                <Link to={`/repo/${repo}/info`}>{repo}</Link>
-              }
-            </Card.Title>
+            <Card.Title>{<Link to={`/repo/${repo}/info`}>{repo}</Link>}</Card.Title>
           </Card.Row>
           <Card.Row>
             <Card.Details>

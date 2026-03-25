@@ -19,13 +19,11 @@ import { mergeRepoSizes, RepositorySize } from "./size";
 describe("size", () => {
   describe(mergeRepoSizes, () => {
     const defaultSizes: RepositorySize = {
-      name: "",
-      namespace: "",
       totalSizeInBytes: -1,
       repoSizeInBytes: -1,
       storeSizeInBytes: -1,
       lfsSizeInBytes: -1,
-      tempSizeInBytes: -1
+      tempSizeInBytes: -1,
     };
 
     it.each([
@@ -38,8 +36,8 @@ describe("size", () => {
             repoSizeInBytes: 20,
             storeSizeInBytes: 30,
             lfsSizeInBytes: 40,
-            tempSizeInBytes: 50
-          }
+            tempSizeInBytes: 50,
+          },
         ],
         {
           ...defaultSizes,
@@ -47,8 +45,8 @@ describe("size", () => {
           repoSizeInBytes: 20,
           storeSizeInBytes: 30,
           lfsSizeInBytes: 40,
-          tempSizeInBytes: 50
-        }
+          tempSizeInBytes: 50,
+        },
       ],
       [
         [
@@ -58,8 +56,8 @@ describe("size", () => {
             repoSizeInBytes: -1,
             storeSizeInBytes: -1,
             lfsSizeInBytes: -1,
-            tempSizeInBytes: -1
-          }
+            tempSizeInBytes: -1,
+          },
         ],
         {
           ...defaultSizes,
@@ -67,8 +65,8 @@ describe("size", () => {
           repoSizeInBytes: -1,
           storeSizeInBytes: -1,
           lfsSizeInBytes: -1,
-          tempSizeInBytes: -1
-        }
+          tempSizeInBytes: -1,
+        },
       ],
       [
         [
@@ -78,7 +76,7 @@ describe("size", () => {
             repoSizeInBytes: -1,
             storeSizeInBytes: -1,
             lfsSizeInBytes: -1,
-            tempSizeInBytes: -1
+            tempSizeInBytes: -1,
           },
           {
             ...defaultSizes,
@@ -86,8 +84,8 @@ describe("size", () => {
             repoSizeInBytes: 20,
             storeSizeInBytes: 30,
             lfsSizeInBytes: 40,
-            tempSizeInBytes: 50
-          }
+            tempSizeInBytes: 50,
+          },
         ],
         {
           ...defaultSizes,
@@ -95,8 +93,8 @@ describe("size", () => {
           repoSizeInBytes: 20,
           storeSizeInBytes: 30,
           lfsSizeInBytes: 40,
-          tempSizeInBytes: 50
-        }
+          tempSizeInBytes: 50,
+        },
       ],
       [
         [
@@ -106,7 +104,7 @@ describe("size", () => {
             repoSizeInBytes: -1,
             storeSizeInBytes: -1,
             lfsSizeInBytes: -1,
-            tempSizeInBytes: -1
+            tempSizeInBytes: -1,
           },
           {
             ...defaultSizes,
@@ -114,7 +112,7 @@ describe("size", () => {
             repoSizeInBytes: 20,
             storeSizeInBytes: 30,
             lfsSizeInBytes: 40,
-            tempSizeInBytes: 50
+            tempSizeInBytes: 50,
           },
           {
             ...defaultSizes,
@@ -122,8 +120,8 @@ describe("size", () => {
             repoSizeInBytes: 15,
             storeSizeInBytes: 25,
             lfsSizeInBytes: 35,
-            tempSizeInBytes: 45
-          }
+            tempSizeInBytes: 45,
+          },
         ],
         {
           ...defaultSizes,
@@ -131,9 +129,9 @@ describe("size", () => {
           repoSizeInBytes: 35,
           storeSizeInBytes: 55,
           lfsSizeInBytes: 75,
-          tempSizeInBytes: 95
-        }
-      ]
+          tempSizeInBytes: 95,
+        },
+      ],
     ])("expected sizes", (input: RepositorySize[], expected: RepositorySize) => {
       const result = mergeRepoSizes(input);
       expect(result).toEqual(expected);

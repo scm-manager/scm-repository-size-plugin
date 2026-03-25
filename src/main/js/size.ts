@@ -14,8 +14,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { Repository, Link } from "@scm-manager/ui-types";
-import { apiClient, useJsonResource, useRepositories } from "@scm-manager/ui-api";
+import { Repository } from "@scm-manager/ui-types";
+import { useIndex, useJsonResource } from "@scm-manager/ui-api";
 import { useEffect, useState } from "react";
 
 type ConvertedSize = {
@@ -29,20 +29,22 @@ const sizeTypeNames = [
   "repoSizeInBytes",
   "storeSizeInBytes",
   "lfsSizeInBytes",
-  "tempSizeInBytes"
+  "tempSizeInBytes",
 ] as const;
 
-export type SizeType = typeof sizeTypeNames[number];
+export type SizeType = (typeof sizeTypeNames)[number];
 
 const SORTING_VALUES = ["asc", "desc", "unsorted"] as const;
 
-export type SortingState = typeof SORTING_VALUES[number];
+export type SortingState = (typeof SORTING_VALUES)[number];
 
 type SizeTypes = {
-  [K in typeof sizeTypeNames[number]]: number;
+  [K in (typeof sizeTypeNames)[number]]: number;
 };
 
-export type RepositorySize = SizeTypes & { isLoading: boolean };
+type BackendSizes = SizeTypes & { name: string; namespace: string };
+
+export type RepositorySize = SizeTypes;
 
 export type RepositorySizes = {
   [repository: string]: RepositorySize;
@@ -56,44 +58,28 @@ export const useRepoSize = (repository: Repository) =>
 export const useReposSize = () => {
   // fetch streaming json data from url
   const [data, setData] = useState<RepositorySizes>({});
-  const { data: repositories, isLoading, error } = useRepositories({ pageSize: 100000 });
+  const { data: index } = useIndex();
+  const {
+    data: sizes,
+    isLoading,
+    error,
+  } = useJsonResource<BackendSizes[]>(index!, "repository-size", ["repository-size"]);
 
   useEffect(() => {
     if (isLoading) {
       return;
     }
-    const blankData: RepositorySizes = {};
-    repositories!._embedded!.repositories.forEach(repository => {
-      blankData[`${repository.namespace}/${repository.name}`] = {
-        totalSizeInBytes: 0,
-        repoSizeInBytes: 0,
-        storeSizeInBytes: 0,
-        lfsSizeInBytes: -1,
-        tempSizeInBytes: -1,
-        isLoading: true
-      };
+    const data: RepositorySizes = {};
+    sizes!.forEach((repository) => {
+      data[`${repository.namespace}/${repository.name}`] = repository;
     });
-    setData(blankData);
-    const loadForRepository = async () => {
-      for (const repository of repositories?._embedded?.repositories ?? []) {
-        await apiClient
-          .get((repository._links.size as Link).href)
-          .then(response => response.json())
-          .then(response =>
-            setData(oldData => {
-              oldData[`${repository.namespace}/${repository.name}`] = { ...response, isLoading: false };
-              return { ...oldData };
-            })
-          );
-      }
-    };
-    loadForRepository();
-  }, [repositories]);
+    setData(data);
+  }, [sizes]);
 
   return {
     data,
     error: error,
-    isLoading: isLoading
+    isLoading: isLoading,
   };
 };
 
@@ -113,9 +99,6 @@ export const formatSizes = (size: RepositorySize) =>
     return convertedSizes;
   }, []);
 
-export const isDataLoading = (sizes: RepositorySizes) =>
-  Object.values(sizes).find(size => size.isLoading) !== undefined;
-
 export const mergeRepoSizes = (sizes: RepositorySizes) => {
   const mergedSizes: RepositorySize = {
     totalSizeInBytes: -1,
@@ -123,11 +106,10 @@ export const mergeRepoSizes = (sizes: RepositorySizes) => {
     storeSizeInBytes: -1,
     lfsSizeInBytes: -1,
     tempSizeInBytes: -1,
-    isLoading: true
   };
 
-  Object.values(sizes).forEach(size => {
-    sizeTypeNames.forEach(sizeType => {
+  Object.values(sizes).forEach((size) => {
+    sizeTypeNames.forEach((sizeType) => {
       if (size[sizeType] < 0) {
         return;
       }
@@ -139,7 +121,6 @@ export const mergeRepoSizes = (sizes: RepositorySizes) => {
       }
     });
   });
-  mergedSizes["isLoading"] = isDataLoading(sizes);
 
   return mergedSizes;
 };
@@ -155,6 +136,6 @@ export const sortRepoByField = (repos: RepositorySizes, field: SizeType, sorting
       } else {
         return b[1][field] - a[1][field];
       }
-    })
+    }),
   );
 };
