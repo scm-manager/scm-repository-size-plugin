@@ -58,12 +58,12 @@ export const useRepoSize = (repository: Repository) =>
 export const useReposSize = () => {
   // fetch streaming json data from url
   const [data, setData] = useState<RepositorySizes>({});
-  const { data: index } = useIndex();
+  const index = useIndex();
   const {
     data: sizes,
     isLoading,
     error,
-  } = useJsonResource<BackendSizes[]>(index!, "repository-size", ["repository-size"]);
+  } = useJsonResource<BackendSizes[]>(index, "repository-size", ["repository-size"]);
 
   useEffect(() => {
     if (isLoading) {

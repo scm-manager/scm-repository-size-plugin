@@ -15,6 +15,10 @@
  */
 
 import React, { FC, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
+import { Button, Card, CardList, CardListBox, ErrorNotification, Icon, Loading, Notification, Title, useDocumentTitle } from "@scm-manager/ui-core";
 import {
   formatSizes,
   isNoRepositorySizeAvailable,
@@ -26,12 +30,15 @@ import {
   SortingState,
   SizeType,
 } from "./size";
-import { ErrorNotification, Loading, Notification, Title, useDocumentTitle } from "@scm-manager/ui-core";
-import { Card, CardList, CardListBox } from "@scm-manager/ui-layout";
-import { Button, Icon } from "@scm-manager/ui-buttons";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
+
+const skeleton = keyframes`
+  0% {
+    opacity: 60%;
+  }
+  100% {
+    opacity: 100%;
+  }
+`;
 
 const FieldItem = styled.div`
   min-width: 165px;
@@ -209,7 +216,11 @@ const DataPanel: FC<{
       {Object.keys(data).map((repo) => (
         <CardList.Card key={repo} rowGap="0.5rem">
           <Card.Row>
-            <Card.Title>{<Link to={`/repo/${repo}/info`}>{repo}</Link>}</Card.Title>
+            <Card.Title>
+              {
+                <Link to={`/repo/${repo}/info`}>{repo}</Link>
+              }
+            </Card.Title>
           </Card.Row>
           <Card.Row>
             <Card.Details>

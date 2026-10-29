@@ -22,10 +22,10 @@ import AdminSizes from "./AdminSizes";
 binder.bind<extensionPoints.RepositoryInformationTableBottom>("repository.information.table.bottom", RepoSizes, {
   predicate: props => !!props.repository._links.size
 });
+
 cfgBinder.bindAdmin(
-  "/repository-size",
+  "repository-size",
   "scm-repository-size-plugin.navLink",
   "fas fa-weight-hanging",
-  "repository-size",
   AdminSizes
 );
